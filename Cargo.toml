@@ -1,0 +1,13 @@
+[package]
+name = "pluum"
+version = "0.0.1"
+authors = ["azzamsa <me@azzamsa.com>"]
+categories = ["algorithms"]
+documentation = "https://docs.rs/pluum"
+edition = "2021"
+homepage = "https://github.com/azzamsa/pluum-of-rust"
+keywords = ["algorithms", "pluum"]
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/azzamsa/pluum-of-rust"
+description = "Rust is very sweet."
