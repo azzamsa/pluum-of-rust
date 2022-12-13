@@ -8,17 +8,15 @@ on: [push, pull_request]
 jobs:
   code_quality:
     name: Code Quality
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
 
       - name: Install rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: stable
-          default: true
-          profile: minimal # no documentation
           components: clippy, rustfmt
 
       - name: Install latest just release
@@ -43,17 +41,15 @@ jobs:
 
   msrv:
     name: Minimum Supported Rust Version
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
 
       - name: Install rust toolchain (v${{ env.MIN_SUPPORTED_RUST_VERSION }})
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: ${{ env.MIN_SUPPORTED_RUST_VERSION }}
-          default: true
-          profile: minimal
 
       - name: Install latest nextest release
         uses: taiki-e/install-action@nextest
@@ -74,22 +70,20 @@ jobs:
       fail-fast: false
       matrix:
         job:
-          - { os: ubuntu-latest, target: x86_64-unknown-linux-gnu    }
-          - { os: ubuntu-latest, target: x86_64-unknown-linux-musl   , use-cross: true }
-          - { os: macos-latest , target: x86_64-apple-darwin         }
-          - { os: windows-latest, target: x86_64-pc-windows-msvc     }
+          - { os: ubuntu-20.04, target: x86_64-unknown-linux-gnu    }
+          - { os: ubuntu-20.04, target: x86_64-unknown-linux-musl   , use-cross: true }
+          - { os: macos-12    , target: x86_64-apple-darwin         }
+          - { os: windows-2019, target: x86_64-pc-windows-msvc      }
 
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
 
       - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@v1
         with:
           toolchain: stable
           target: ${{ matrix.job.target }}
-          override: true
-          profile: minimal
 
       - name: Cache
         uses: Swatinem/rust-cache@v2
@@ -104,9 +98,23 @@ jobs:
           cargo -V
           rustc -V
 
-      - name: Build
-        uses: actions-rs/cargo@v1
+      - name: Set cargo cmd
+        shell: bash
+        run: echo "CARGO_CMD=cargo" >> $GITHUB_ENV
+
+      - name: Set cargo cmd to cross
+        shell: bash
+        if: ${{ matrix.job.use-cross == true }}
+        run: echo "CARGO_CMD=cross" >> $GITHUB_ENV
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
         with:
-          use-cross: ${{ matrix.job.use-cross }}
-          command: build
-          args: --release --target=${{ matrix.job.target }}
+          key: ${{ matrix.job.os }}-${{ matrix.job.target }}
+
+      - name: Install cross
+        if: ${{ matrix.job.use-cross == true }}
+        uses: taiki-e/install-action@cross
+
+      - name: Build
+        run: ${{ env.CARGO_CMD }} build --verbose --target=${{ matrix.job.target }}
