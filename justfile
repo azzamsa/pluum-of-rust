@@ -68,5 +68,5 @@ up arg="":
     	cargo upgrade
     	cargo update
     else
-        cargo outdated --root-deps-only
+        cargo outdated
     fi;
