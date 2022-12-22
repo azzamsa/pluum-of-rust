@@ -1,5 +1,9 @@
 # Development Guide
 
+### Commit Message Format
+
+This repository is using [Agular's commit message format][commit-message]
+
 ## Release Checklist
 
 - Ensure local `master` is up to date to `origin/master`.
@@ -15,3 +19,5 @@
   delete the tag from GitHub, make fixes, re-tag, delete the release, and push.
 - Copy the relevant section of the CHANGELOG.md to the tagged release notes.
 - Run `cargo publish`.
+
+[commit-message]: https://github.com/angular/angular/blob/2095a08781167e91a60a4cec65c694688b319cd0/CONTRIBUTING.md#-commit-message-format
